@@ -18,3 +18,4 @@ export interface IDataToken {
 }
 
 export * from './auditTrail';
+export * from './detailsUser';
