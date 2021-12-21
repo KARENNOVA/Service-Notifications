@@ -3,7 +3,7 @@ import Notification from './../../Models/Notification';
 import { IResponseData } from './../../Utils/interfaces/index';
 import CreateNotificationValidator from './../../Validators/CreateNotificationValidator';
 import { INotification } from './../../Utils/interfaces/notification';
-import { getToken } from 'App/Utils/functions';
+import { getToken, validatePagination } from 'App/Utils/functions';
 import { decodeJWT } from './../../Utils/functions/jwt';
 import { IDataToken } from 'App/Utils/interfaces';
 import AuditTrail from './../../Utils/classes/AuditTrail';
@@ -93,7 +93,11 @@ export default class NotificationsController {
     public async showAll({ response, request }: HttpContextContract) {
         const responseData: IResponseData = { message: '', status: 200 };
         const payloadQS = request.qs();
-        const { to, last, f } = payloadQS;
+        const { to, last, f, page, pageSize } = payloadQS;
+
+        const pagination = validatePagination(undefined, page, pageSize);
+
+        let count: number = pagination['page'] * pagination['pageSize'] - pagination['pageSize'];
 
         const { payloadToken } = getToken(request.headers());
 
@@ -107,6 +111,7 @@ export default class NotificationsController {
                       .where('status', 1)
                       .limit(last)
                       .orderBy('id', 'desc')
+                      .offset(count)
                 : [];
 
             if (f) {
