@@ -139,7 +139,10 @@ export default class NotificationsController {
             responseData['total'] = (await Notification.query().where('status', 1)).length;
             responseData['total_results'] = notifications.length;
             responseData['total_no_readed'] = (
-                await Notification.query().where('readed', false).where('status', 1)
+                await Notification.query()
+                    .where('readed', false)
+                    .where('to', whereTo)
+                    .where('status', 1)
             ).length;
 
             return response.status(responseData['status']).json(responseData);
