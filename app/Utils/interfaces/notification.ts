@@ -10,8 +10,8 @@ export interface INotification {
     received: boolean;
     readed: boolean;
 
-    _to: number;
-    _from: number;
+    to: number | undefined;
+    from: number;
 
     status?: number;
     audit_trail?: IAuditTrail;

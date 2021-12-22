@@ -22,11 +22,19 @@ export default class NotificationsController {
         const auditTrail: AuditTrail = new AuditTrail(token);
         await auditTrail.init();
 
+        const tmpDataToCreate = {
+            ...payloadValidator,
+        };
+
+        if (payloadValidator['toRole']) {
+            delete tmpDataToCreate['toRole'];
+        }
+
         let dataToCreate: INotification = {
             ...payloadValidator,
             received: false,
             readed: false,
-            _from: payloadToken['id'],
+            from: payloadToken['id'],
             status: 1,
             audit_trail: auditTrail.getAsJson(),
         };
@@ -104,15 +112,16 @@ export default class NotificationsController {
         let whereTo = to ? to : payloadToken.id;
 
         try {
-            let notifications = payloadQS.with
-                ? await Notification.query()
-                      .preload('status_info')
-                      .where('to', whereTo)
-                      .where('status', 1)
-                      .limit(last)
-                      .orderBy('id', 'desc')
-                      .offset(count)
-                : [];
+            let notifications =
+                // payloadQS.with ?
+                await Notification.query()
+                    .preload('status_info')
+                    .where('to', whereTo)
+                    .where('status', 1)
+                    .limit(last)
+                    .orderBy('id', 'desc')
+                    .offset(count);
+            // : [];
 
             if (f) {
                 if (f === 'no-readed')

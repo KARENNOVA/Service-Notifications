@@ -9,7 +9,8 @@ export default class CreateNotificationValidator {
         description: schema.string({ trim: true }),
         priority: schema.number(),
         action: schema.string({ trim: true }),
-        _to: schema.number(),
+        to: schema.number.optional(),
+        toRole: schema.string.optional(),
     });
 
     /**
