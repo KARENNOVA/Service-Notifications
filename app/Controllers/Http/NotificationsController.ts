@@ -8,13 +8,14 @@ import { decodeJWT } from './../../Utils/functions/jwt';
 import { IDataToken } from 'App/Utils/interfaces';
 import AuditTrail from './../../Utils/classes/AuditTrail';
 import Ws from 'App/Services/Ws';
+import { getUsersByRole, registerSID } from './../../Services/auth';
 
 export default class NotificationsController {
     public async index({}: HttpContextContract) {}
 
     public async create({ response, request }: HttpContextContract) {
         let responseData: IResponseData = { message: '', status: 200 };
-        const { token } = getToken(request.headers());
+        const { token, headerAuthorization } = getToken(request.headers());
         const payloadToken: IDataToken = decodeJWT(token);
 
         const payloadValidator = await request.validate(CreateNotificationValidator);
@@ -26,12 +27,15 @@ export default class NotificationsController {
             ...payloadValidator,
         };
 
+        let users: any[] = [];
         if (payloadValidator['toRole']) {
             delete tmpDataToCreate['toRole'];
+            users = await getUsersByRole(payloadValidator['toRole'], headerAuthorization);
+            console.log(users);
         }
 
         let dataToCreate: INotification = {
-            ...payloadValidator,
+            ...tmpDataToCreate,
             received: false,
             readed: false,
             from: payloadToken['id'],
@@ -39,22 +43,26 @@ export default class NotificationsController {
             audit_trail: auditTrail.getAsJson(),
         };
 
-        try {
-            const notificationCreated = await Notification.create(dataToCreate);
-            responseData['message'] = 'Notificación creada satisfactoriamente.';
-            responseData['results'] = notificationCreated;
-            Ws.io
-                .to(request.headers()['sec-websocket-key'] as string)
-                .emit('new:notification', responseData['results']);
-            return response.status(responseData['status']).json(responseData);
-        } catch (error) {
-            console.log(error);
+        await Promise.all(
+            users.map(async (user) => {
+                try {
+                    const notificationCreated = await Notification.create(dataToCreate);
+                    responseData['message'] = 'Notificación creada satisfactoriamente.';
+                    responseData['results'] = notificationCreated;
 
-            responseData['message'] =
-                'Error inesperado al crear la Notificación.\nRevisar Terminal.';
-            responseData['status'] = 500;
-            return response.status(responseData['status']).json(response);
-        }
+                    if (user['sid'] !== null)
+                        Ws.io.to(user['sid']).emit('new:notification', responseData['results']);
+                    return response.status(responseData['status']).json(responseData);
+                } catch (error) {
+                    console.log(error);
+
+                    responseData['message'] =
+                        'Error inesperado al crear la Notificación.\nRevisar Terminal.';
+                    responseData['status'] = 500;
+                    return response.status(responseData['status']).json(response);
+                }
+            }),
+        );
     }
 
     public async store({ response }: HttpContextContract) {
