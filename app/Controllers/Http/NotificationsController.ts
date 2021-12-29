@@ -8,7 +8,7 @@ import { decodeJWT } from './../../Utils/functions/jwt';
 import { IDataToken } from 'App/Utils/interfaces';
 import AuditTrail from './../../Utils/classes/AuditTrail';
 import Ws from 'App/Services/Ws';
-import { getUsersByRole, registerSID } from './../../Services/auth';
+import { getUsersByRole } from './../../Services/auth';
 
 export default class NotificationsController {
     public async index({}: HttpContextContract) {}
