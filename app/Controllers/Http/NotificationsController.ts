@@ -9,6 +9,7 @@ import { IDataToken } from 'App/Utils/interfaces';
 import AuditTrail from './../../Utils/classes/AuditTrail';
 import Ws from 'App/Services/Ws';
 import { getUsersByRole } from './../../Services/auth';
+import { messageError } from './../../Utils/functions/index';
 
 export default class NotificationsController {
     public async index({}: HttpContextContract) {}
@@ -31,7 +32,6 @@ export default class NotificationsController {
         if (payloadValidator['toRole']) {
             delete tmpDataToCreate['toRole'];
             users = await getUsersByRole(payloadValidator['toRole'], headerAuthorization);
-            console.log(users);
         }
 
         let dataToCreate: INotification = {
@@ -45,6 +45,7 @@ export default class NotificationsController {
 
         await Promise.all(
             users.map(async (user) => {
+                dataToCreate['to'] = user['user_id'];
                 try {
                     const notificationCreated = await Notification.create(dataToCreate);
                     responseData['message'] = 'Notificación creada satisfactoriamente.';
@@ -54,12 +55,12 @@ export default class NotificationsController {
                         Ws.io.to(user['sid']).emit('new:notification', responseData['results']);
                     return response.status(responseData['status']).json(responseData);
                 } catch (error) {
-                    console.log(error);
-
-                    responseData['message'] =
-                        'Error inesperado al crear la Notificación.\nRevisar Terminal.';
-                    responseData['status'] = 500;
-                    return response.status(responseData['status']).json(response);
+                    return messageError(
+                        error,
+                        response,
+                        'Error inesperado al crear la Notificación.\nRevisar Terminal.',
+                        500,
+                    );
                 }
             }),
         );
