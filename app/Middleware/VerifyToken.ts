@@ -12,6 +12,7 @@ export default class VerifyToken {
             status: 401,
         };
         const { token, headerAuthorization, payloadToken } = getToken(request.headers());
+        console.log(payloadToken);
 
         if (
             token === '' ||
