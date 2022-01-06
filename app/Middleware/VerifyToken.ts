@@ -12,7 +12,11 @@ export default class VerifyToken {
             status: 401,
         };
         const { token, headerAuthorization, payloadToken } = getToken(request.headers());
-        console.log(payloadToken);
+        if (payloadToken === undefined) {
+            responseData['message'] =
+                'Token expirado. Iniciar sesión de nuevo para poder continuar.';
+            return response.unauthorized(responseData);
+        }
 
         if (
             token === '' ||
