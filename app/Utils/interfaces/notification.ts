@@ -2,7 +2,7 @@ import { IAuditTrail } from 'App/Utils/interfaces';
 export interface INotification {
     id?: number;
 
-    title: string;
+    subject: string;
     description: string;
     priority: number;
     action: string;
