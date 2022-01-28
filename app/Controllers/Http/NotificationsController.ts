@@ -28,10 +28,14 @@ export default class NotificationsController {
             ...payloadValidator,
         };
 
+
+
         let users: any[] = [];
         if (payloadValidator['toRole']) {
             delete tmpDataToCreate['toRole'];
             users = await getUsersByRole(payloadValidator['toRole'], headerAuthorization);
+            // let ids  =console.log('usuarios',users.map(u => u.id));
+
         }
 
         let dataToCreate: INotification = {
@@ -42,10 +46,10 @@ export default class NotificationsController {
             status: 1,
             audit_trail: auditTrail.getAsJson(),
         };
-
         await Promise.all(
             users.map(async (user) => {
                 dataToCreate['to'] = user['user_id'];
+                console.log(dataToCreate)
                 try {
                     const notificationCreated = await Notification.create(dataToCreate);
                     responseData['message'] = 'Notificación creada satisfactoriamente.';

@@ -8,7 +8,7 @@ export const getUsersByRole = async (role: string, headerAuthorization) => {
     try {
         // {{DOMAIN}}{{API-VERSION}}/users/list?role=Adquisiciones
         const axiosResponse = await axios.get(`${URI}${VERSION}/users/list`, {
-            params: { role: role, only: 'active' },
+            params: { role: role },
             headers: { authorization: headerAuthorization },
         });
 
