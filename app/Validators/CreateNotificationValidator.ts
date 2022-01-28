@@ -5,7 +5,7 @@ export default class CreateNotificationValidator {
     constructor(protected ctx: HttpContextContract) {}
 
     public schema = schema.create({
-        title: schema.string({ trim: true }),
+        subject: schema.string({ trim: true }),
         description: schema.string({ trim: true }),
         priority: schema.number(),
         action: schema.string({ trim: true }),
