@@ -29,6 +29,8 @@
       "@adonisjs/core",
       "@adonisjs/repl",
       "@adonisjs/lucid"
-    ]
-  }
+    ],
+
+  },
+  "experimentalDecorators": true,
 }
