@@ -90,10 +90,11 @@ export default class NotificationsController {
 
         try {
             let notifications = await Notification.query().preload('status_info').where('id', id);
+            console.log("QQQ",notifications);
             const notification = {
                 ...notifications[0]['$attributes'],
             };
-            console.log(notifications);
+
 
             responseData['message'] = 'Notificación';
             responseData['results'] = notification;
